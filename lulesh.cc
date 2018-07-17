@@ -2684,8 +2684,21 @@ int main(int argc, char *argv[])
 
 #if USE_MPI   
    Domain_member fieldData ;
+   
+#ifdef _OPENMP
+   int thread_support;
 
-   MPI_Init(&argc, &argv) ;
+   MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, &thread_support);
+   if (thread_support==MPI_THREAD_SINGLE)
+    {
+        fprintf(stderr,"The MPI implementation has no support for threading\n");
+        MPI_Finalize();
+        exit(1);
+    }
+#else
+   MPI_Init(&argc, &argv);
+#endif
+    
    MPI_Comm_size(MPI_COMM_WORLD, &numRanks) ;
    MPI_Comm_rank(MPI_COMM_WORLD, &myRank) ;
 #else
