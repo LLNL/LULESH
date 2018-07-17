@@ -1,0 +1,33 @@
+This is the README for LULESH 2.0 using OpenMP 4.0
+
+This is meant to be an example of how we would port this type of code to OpenMp 4.0 for use for performance portability with or without accelerators.
+
+Options:
+- The default number of teams and threads is set. You can customize these parameters by changing the build options (make TEAMS=512 THREADS=256) or the #defines at the top of the code.
+- The default device is the GPU but it can be disabled by passing the USE_GPU=0 to the Makefile.
+
+Warning: Performance may vary based on your OpenMP 4.0 implementation.
+
+More information including LULESH 1.0 can be found at https://codesign.llnl.gov/lulesh.php
+
+If you have any questions or problems please contact:
+
+Ian Karlin <karlin1@llnl.gov>
+Jeff Keasler <keasler1@llnl.gov> or
+Gheorghe-Teodor Bercea <gbercea@us.ibm.com>
+
+Also please send any notable results to Ian Karlin <karlin1@llnl.gov> and Gheorghe-Teodor Bercea <gbercea@us.ibm.com> as we are still evaluating the performance of this code.
+
+*** Notable changes in LULESH 2.0 ***
+
+Split functionality into different files
+lulesh.cc - where most (all?) of the timed functionality lies
+lulesh-comm.cc - MPI functionality
+lulesh-init.cc - Setup code
+lulesh-viz.cc  - Support for visualization option
+lulesh-util.cc - Non-timed functions
+
+Deviations from the base implementation:
+- Mergeing of some functions/loops.
+- Refactoring of the loop over material properties.
+- Move exit() and MPI_Abort() functions outside `target` regions.
