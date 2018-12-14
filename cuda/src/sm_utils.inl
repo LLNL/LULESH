@@ -7,6 +7,10 @@
 #define __PTR   "r"
 #endif
 
+#if __CUDA_ARCH__ >= 700
+#define FULL_MASK 0xffffffff
+#endif
+
 namespace utils {
 
 // ====================================================================================================================
@@ -188,7 +192,9 @@ static __device__ __forceinline__ void load_vec4( double (&u)[4], const double *
 // ====================================================================================================================
 static __device__ __forceinline__ float shfl( float r, int lane, int warp_size )
 {
-#if __CUDA_ARCH__ >= 300
+#if __CUDA_ARCH__ >= 700
+  return __shfl_sync(FULL_MASK, r, lane , warp_size);
+#elif __CUDA_ARCH__ >= 300
   return __shfl( r, lane , warp_size);
 #else
   return 0.0f;
@@ -197,7 +203,11 @@ static __device__ __forceinline__ float shfl( float r, int lane, int warp_size )
 
 static __device__ __forceinline__ double shfl( double r, int lane, int warp_size )
 {
-#if __CUDA_ARCH__ >= 300
+#if __CUDA_ARCH__ >= 700
+  int hi = __shfl_sync(FULL_MASK, __double2hiint(r), lane , warp_size);
+  int lo = __shfl_sync(FULL_MASK, __double2loint(r), lane , warp_size);
+  return __hiloint2double( hi, lo );
+#elif __CUDA_ARCH__ >= 300
   int hi = __shfl( __double2hiint(r), lane , warp_size);
   int lo = __shfl( __double2loint(r), lane , warp_size);
   return __hiloint2double( hi, lo );
@@ -208,7 +218,9 @@ static __device__ __forceinline__ double shfl( double r, int lane, int warp_size
 
 static __device__ __forceinline__ float shfl_xor( float r, int mask, int warp_size )
 {
-#if __CUDA_ARCH__ >= 300
+#if __CUDA_ARCH__ >= 700
+  return __shfl_xor_sync(FULL_MASK, r, mask, warp_size );
+#elif __CUDA_ARCH__ >= 300
   return __shfl_xor( r, mask, warp_size );
 #else
   return 0.0f;
@@ -217,7 +229,11 @@ static __device__ __forceinline__ float shfl_xor( float r, int mask, int warp_si
 
 static __device__ __forceinline__ double shfl_xor( double r, int mask, int warp_size )
 {
-#if __CUDA_ARCH__ >= 300
+#if __CUDA_ARCH__ >= 700
+  int hi = __shfl_xor_sync( __double2hiint(r), mask, warp_size );
+  int lo = __shfl_xor_sync( __double2loint(r), mask, warp_size );
+  return __hiloint2double( hi, lo );
+#elif __CUDA_ARCH__ >= 300
   int hi = __shfl_xor( __double2hiint(r), mask, warp_size );
   int lo = __shfl_xor( __double2loint(r), mask, warp_size );
   return __hiloint2double( hi, lo );
@@ -228,7 +244,9 @@ static __device__ __forceinline__ double shfl_xor( double r, int mask, int warp_
 
 static __device__ __forceinline__ float shfl_down( float r, int offset )
 {
-#if __CUDA_ARCH__ >= 300
+#if __CUDA_ARCH__ >= 700
+  return __shfl_down_sync(FULL_MASK, r, offset );
+#elif __CUDA_ARCH__ >= 300
   return __shfl_down( r, offset );
 #else
   return 0.0f;
@@ -237,7 +255,11 @@ static __device__ __forceinline__ float shfl_down( float r, int offset )
 
 static __device__ __forceinline__ double shfl_down( double r, int offset )
 {
-#if __CUDA_ARCH__ >= 300
+#if __CUDA_ARCH__ >= 700
+  int hi = __shfl_down_sync(FULL_MASK, __double2hiint(r), offset );
+  int lo = __shfl_down_sync(FULL_MASK, __double2loint(r), offset );
+  return __hiloint2double( hi, lo );
+#elif __CUDA_ARCH__ >= 300
   int hi = __shfl_down( __double2hiint(r), offset );
   int lo = __shfl_down( __double2loint(r), offset );
   return __hiloint2double( hi, lo );
