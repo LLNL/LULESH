@@ -4603,7 +4603,8 @@ void VerifyAndWriteFinalOutput(Real_t elapsed_time,
                                Domain& locDom,
 			       Int_t its,
                                Int_t nx,
-                               Int_t numRanks)
+                               Int_t numRanks, 
+                               bool structured)
 {
    size_t free_mem, total_mem, used_mem;
    cudaMemGetInfo(&free_mem, &total_mem);
@@ -4615,45 +4616,57 @@ void VerifyAndWriteFinalOutput(Real_t elapsed_time,
    // GrindTime1 only takes a single domain into account, and is thus a good way to measure
    // processor speed indepdendent of MPI parallelism.
    // GrindTime2 takes into account speedups from MPI parallelism 
-   Real_t grindTime1 = ((elapsed_time*1e6)/its)/(nx*nx*nx);
-   Real_t grindTime2 = ((elapsed_time*1e6)/its)/(nx*nx*nx*numRanks);
-
-   // Copy Energy back to Host 
-   Real_t e_zero;
-   Real_t* d_ezero_ptr = locDom.e.raw() + locDom.octantCorner; /* octant corner supposed to be 0 */
-   cudaMemcpy(&e_zero, d_ezero_ptr, sizeof(Real_t), cudaMemcpyDeviceToHost);
-
-   printf("Run completed:  \n");
-   printf("   Problem size        =  %i \n",    nx);
-   printf("   MPI tasks           =  %i \n",    numRanks);
-   printf("   Iteration count     =  %i \n",    its);
-   printf("   Final Origin Energy = %12.6e \n", e_zero);
-
-   Real_t   MaxAbsDiff = Real_t(0.0);
-   Real_t TotalAbsDiff = Real_t(0.0);
-   Real_t   MaxRelDiff = Real_t(0.0);
-
-   Real_t *e_all = new Real_t[nx * nx];
-   cudaMemcpy(e_all, locDom.e.raw(), nx * nx * sizeof(Real_t), cudaMemcpyDeviceToHost);
-   for (Index_t j=0; j<nx; ++j) {
-      for (Index_t k=j+1; k<nx; ++k) {
-         Real_t AbsDiff = FABS(e_all[j*nx+k]-e_all[k*nx+j]);
-         TotalAbsDiff  += AbsDiff;
-
-         if (MaxAbsDiff <AbsDiff) MaxAbsDiff = AbsDiff;
-
-         Real_t RelDiff = AbsDiff / e_all[k*nx+j];
-
-         if (MaxRelDiff <RelDiff)  MaxRelDiff = RelDiff;
-      }
+   Real_t grindTime1; 
+   Real_t grindTime2;
+   if(structured)
+   {
+      grindTime1 = ((elapsed_time*1e6)/its)/(nx*nx*nx);
+      grindTime2 = ((elapsed_time*1e6)/its)/(nx*nx*nx*numRanks);
    }
-   delete e_all;
+   else
+   {
+      grindTime1 = ((elapsed_time*1e6)/its)/(locDom.numElem);
+      grindTime2 = ((elapsed_time*1e6)/its)/(locDom.numElem*numRanks);
+   }
+   // Copy Energy back to Host 
+   if(structured)
+   {
+      Real_t e_zero;
+      Real_t* d_ezero_ptr = locDom.e.raw() + locDom.octantCorner; /* octant corner supposed to be 0 */
+      cudaMemcpy(&e_zero, d_ezero_ptr, sizeof(Real_t), cudaMemcpyDeviceToHost);
 
-   // Quick symmetry check
-   printf("   Testing Plane 0 of Energy Array on rank 0:\n");
-   printf("        MaxAbsDiff   = %12.6e\n",   MaxAbsDiff   );
-   printf("        TotalAbsDiff = %12.6e\n",   TotalAbsDiff );
-   printf("        MaxRelDiff   = %12.6e\n\n", MaxRelDiff   );
+      printf("Run completed:  \n");
+      printf("   Problem size        =  %i \n",    nx);
+      printf("   MPI tasks           =  %i \n",    numRanks);
+      printf("   Iteration count     =  %i \n",    its);
+      printf("   Final Origin Energy = %12.6e \n", e_zero);
+
+      Real_t   MaxAbsDiff = Real_t(0.0);
+      Real_t TotalAbsDiff = Real_t(0.0);
+      Real_t   MaxRelDiff = Real_t(0.0);
+
+      Real_t *e_all = new Real_t[nx * nx];
+      cudaMemcpy(e_all, locDom.e.raw(), nx * nx * sizeof(Real_t), cudaMemcpyDeviceToHost);
+      for (Index_t j=0; j<nx; ++j) {
+         for (Index_t k=j+1; k<nx; ++k) {
+            Real_t AbsDiff = FABS(e_all[j*nx+k]-e_all[k*nx+j]);
+            TotalAbsDiff  += AbsDiff;
+
+            if (MaxAbsDiff <AbsDiff) MaxAbsDiff = AbsDiff;
+
+            Real_t RelDiff = AbsDiff / e_all[k*nx+j];
+
+            if (MaxRelDiff <RelDiff)  MaxRelDiff = RelDiff;
+         }
+      }
+      delete e_all;
+
+      // Quick symmetry check
+      printf("   Testing Plane 0 of Energy Array on rank 0:\n");
+      printf("        MaxAbsDiff   = %12.6e\n",   MaxAbsDiff   );
+      printf("        TotalAbsDiff = %12.6e\n",   TotalAbsDiff );
+      printf("        MaxRelDiff   = %12.6e\n\n", MaxRelDiff   );
+   }
 
    // Timing information
    printf("\nElapsed time         = %10.2f (s)\n", elapsed_time);
@@ -4806,7 +4819,7 @@ int main(int argc, char *argv[])
   cudaProfilerStop();
 
   if (myRank == 0) 
-    VerifyAndWriteFinalOutput(elapsed_timeG, *locDom, its, nx, numRanks);
+    VerifyAndWriteFinalOutput(elapsed_timeG, *locDom, its, nx, numRanks, structured);
 
 #ifdef SAMI
   DumpDomain(locDom) ;

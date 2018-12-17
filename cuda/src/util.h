@@ -58,6 +58,7 @@ void printVector(const char* label, const vector &v)
   std::cout  << std::endl;
 }
 
+#if defined(__CUDA_ARCH__) && __CUDA_ARCH__ < 600 
 // Double precision atomicAdd in software
 static 
 __device__ 
@@ -79,4 +80,4 @@ double atomicAdd(double* address, double val)
   return __longlong_as_double(old);
 
 }
-
+#endif

@@ -1,0 +1,21 @@
+This is the README for LULESH 2.0 using CUDA
+
+This is meant to be an example of how we would port this type of code to CUDA for Nvidia GPUs.
+
+More information including LULESH 1.0 can be found at https://codesign.llnl.gov/lulesh.php
+
+If you have any questions or problems please contact:
+
+Ian Karlin <karlin1@llnl.gov>
+Rob Neely <neely4@llnl.gov>
+
+
+*** Notable changes in LULESH 2.0 using CUDA ***
+
+Split functionality into different files
+lulesh.cu - where most (all?) of the timed functionality lies
+lulesh-comm.cu - MPI functionality
+lulesh-comm-gpu.cu - MPI functionality
+
+The unstructured meshes feature is available but not fully supported.  It will generate incorrect verification output and the report is turned off.
+
