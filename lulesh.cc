@@ -2720,19 +2720,19 @@ int main(int argc, char *argv[])
    ParseCommandLineOptions(argc, argv, myRank, &opts);
 
    if ((myRank == 0) && (opts.quiet == 0)) {
-      printf("Running problem size %d^3 per domain until completion\n", opts.nx);
-      printf("Num processors: %d\n", numRanks);
+      std::cout << "Running problem size " << opts.nx << "^3 per domain until completion\n";
+      std::cout << "Num processors: "      << numRanks << "\n";
 #if _OPENMP
-      printf("Num threads: %d\n", omp_get_max_threads());
+      std::cout << "Num threads: " << omp_get_max_threads() << "\n";
 #endif
-      printf("Total number of elements: %lld\n\n", (long long int)(numRanks*opts.nx*opts.nx*opts.nx));
-      printf("To run other sizes, use -s <integer>.\n");
-      printf("To run a fixed number of iterations, use -i <integer>.\n");
-      printf("To run a more or less balanced region set, use -b <integer>.\n");
-      printf("To change the relative costs of regions, use -c <integer>.\n");
-      printf("To print out progress, use -p\n");
-      printf("To write an output file for VisIt, use -v\n");
-      printf("See help (-h) for more options\n\n");
+      std::cout << "Total number of elements: " << ((Int8_t)numRanks*opts.nx*opts.nx*opts.nx) << " \n\n";
+      std::cout << "To run other sizes, use -s <integer>.\n";
+      std::cout << "To run a fixed number of iterations, use -i <integer>.\n";
+      std::cout << "To run a more or less balanced region set, use -b <integer>.\n";
+      std::cout << "To change the relative costs of regions, use -c <integer>.\n";
+      std::cout << "To print out progress, use -p\n";
+      std::cout << "To write an output file for VisIt, use -v\n";
+      std::cout << "See help (-h) for more options\n\n";
    }
 
    // Set up the mesh and decompose. Assumes regular cubes for now
@@ -2776,8 +2776,11 @@ int main(int argc, char *argv[])
       LagrangeLeapFrog(*locDom) ;
 
       if ((opts.showProg != 0) && (opts.quiet == 0) && (myRank == 0)) {
-         printf("cycle = %d, time = %e, dt=%e\n",
-                locDom->cycle(), double(locDom->time()), double(locDom->deltatime()) ) ;
+         std::cout << "cycle = " << locDom->cycle()       << ", "
+                   << std::scientific
+                   << "time = " << double(locDom->time()) << ", "
+                   << "dt="     << double(locDom->deltatime()) << "\n";
+         std::cout.unsetf(std::ios_base::floatfield);
       }
    }
 

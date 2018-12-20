@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <iostream>
+#include <iomanip>
 #if USE_MPI
 #include <mpi.h>
 #endif
@@ -203,11 +205,13 @@ void VerifyAndWriteFinalOutput(Real_t elapsed_time,
    Real_t grindTime2 = ((elapsed_time*1e6)/locDom.cycle())/(nx8*nx8*nx8*numRanks);
 
    Index_t ElemId = 0;
-   printf("Run completed:  \n");
-   printf("   Problem size        =  %i \n",    nx);
-   printf("   MPI tasks           =  %i \n",    numRanks);
-   printf("   Iteration count     =  %i \n",    locDom.cycle());
-   printf("   Final Origin Energy = %12.6e \n", locDom.e(ElemId));
+   std::cout << "Run completed:\n";
+   std::cout << "   Problem size        =  " << nx       << "\n";
+   std::cout << "   MPI tasks           =  " << numRanks << "\n";
+   std::cout << "   Iteration count     =  " << locDom.cycle() << "\n";
+   std::cout << "   Final Origin Energy =  ";
+   std::cout << std::scientific << std::setprecision(6);
+   std::cout << std::setw(12) << locDom.e(ElemId) << "\n";
 
    Real_t   MaxAbsDiff = Real_t(0.0);
    Real_t TotalAbsDiff = Real_t(0.0);
@@ -227,15 +231,19 @@ void VerifyAndWriteFinalOutput(Real_t elapsed_time,
    }
 
    // Quick symmetry check
-   printf("   Testing Plane 0 of Energy Array on rank 0:\n");
-   printf("        MaxAbsDiff   = %12.6e\n",   MaxAbsDiff   );
-   printf("        TotalAbsDiff = %12.6e\n",   TotalAbsDiff );
-   printf("        MaxRelDiff   = %12.6e\n\n", MaxRelDiff   );
+   std::cout << "   Testing Plane 0 of Energy Array on rank 0:\n";
+   std::cout << "        MaxAbsDiff   = " << std::setw(12) << MaxAbsDiff   << "\n";
+   std::cout << "        TotalAbsDiff = " << std::setw(12) << TotalAbsDiff << "\n";
+   std::cout << "        MaxRelDiff   = " << std::setw(12) << MaxRelDiff   << "\n";
 
    // Timing information
-   printf("\nElapsed time         = %10.2f (s)\n", elapsed_time);
-   printf("Grind time (us/z/c)  = %10.8g (per dom)  (%10.8g overall)\n", grindTime1, grindTime2);
-   printf("FOM                  = %10.8g (z/s)\n\n", 1000.0/grindTime2); // zones per second
+   std::cout.unsetf(std::ios_base::floatfield);
+   std::cout << std::setprecision(2);
+   std::cout << "\nElapsed time         = " << std::setw(10) << elapsed_time << " (s)\n";
+   std::cout << std::setprecision(8);
+   std::cout << "Grind time (us/z/c)  = "  << std::setw(10) << grindTime1 << " (per dom)  ("
+             << std::setw(10) << elapsed_time << " overall)\n";
+   std::cout << "FOM                  = " << std::setw(10) << 1000.0/grindTime2 << " (z/s)\n\n";
 
    return ;
 }
