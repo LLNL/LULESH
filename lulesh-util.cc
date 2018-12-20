@@ -176,9 +176,11 @@ void VerifyAndWriteFinalOutput(Real_t elapsed_time,
 {
    // GrindTime1 only takes a single domain into account, and is thus a good way to measure
    // processor speed indepdendent of MPI parallelism.
-   // GrindTime2 takes into account speedups from MPI parallelism 
-   Real_t grindTime1 = ((elapsed_time*1e6)/locDom.cycle())/(nx*nx*nx);
-   Real_t grindTime2 = ((elapsed_time*1e6)/locDom.cycle())/(nx*nx*nx*numRanks);
+   // GrindTime2 takes into account speedups from MPI parallelism.
+   // Cast to 64-bit integer to avoid overflows.
+   Int8_t nx8 = nx;
+   Real_t grindTime1 = ((elapsed_time*1e6)/locDom.cycle())/(nx8*nx8*nx8);
+   Real_t grindTime2 = ((elapsed_time*1e6)/locDom.cycle())/(nx8*nx8*nx8*numRanks);
 
    Index_t ElemId = 0;
    printf("Run completed:  \n");
