@@ -18,6 +18,7 @@
 
 #include <math.h>
 #include <vector>
+#include <memory>
 
 //**************************************************
 // Allow flexibility for arithmetic representations 
@@ -95,6 +96,19 @@ inline real10 FABS(real10 arg) { return fabsl(arg) ; }
 
 #define CACHE_ALIGN_REAL(n) \
    (((n) + (CACHE_COHERENCE_PAD_REAL - 1)) & ~(CACHE_COHERENCE_PAD_REAL-1))
+
+template<typename T>
+struct ArrayDeleter {
+  void
+  operator()(T* ptr) {
+    delete[] ptr;
+  }
+};
+
+template<typename T>
+using ArrayDeleter_t = ArrayDeleter<T>;
+template<typename T>
+using ArrayPtr_t     = std::unique_ptr<T[], ArrayDeleter_t<T>>;
 
 //////////////////////////////////////////////////////
 // Primary data structure
@@ -195,39 +209,39 @@ class Domain {
    void AllocateGradients(Int_t numElem, Int_t allElem)
    {
       // Position gradients
-      m_delx_xi.resize(numElem) ;
-      m_delx_eta.resize(numElem) ;
-      m_delx_zeta.resize(numElem) ;
+      m_delx_xi.reset(new Real_t[numElem]);
+      m_delx_eta.reset(new Real_t[numElem]);
+      m_delx_zeta.reset(new Real_t[numElem]);
 
       // Velocity gradients
-      m_delv_xi.resize(allElem) ;
-      m_delv_eta.resize(allElem);
-      m_delv_zeta.resize(allElem) ;
+      m_delv_xi.reset(new Real_t[allElem]);
+      m_delv_eta.reset(new Real_t[allElem]);
+      m_delv_zeta.reset(new Real_t[allElem]);
    }
 
    void DeallocateGradients()
    {
-      m_delx_zeta.clear() ;
-      m_delx_eta.clear() ;
-      m_delx_xi.clear() ;
+      m_delx_zeta.reset() ;
+      m_delx_eta.reset() ;
+      m_delx_xi.reset() ;
 
-      m_delv_zeta.clear() ;
-      m_delv_eta.clear() ;
-      m_delv_xi.clear() ;
+      m_delv_zeta.reset();
+      m_delv_eta.reset();
+      m_delv_xi.reset();
    }
 
    void AllocateStrains(Int_t numElem)
    {
-      m_dxx.resize(numElem) ;
-      m_dyy.resize(numElem) ;
-      m_dzz.resize(numElem) ;
+      m_dxx.reset(new Real_t[numElem]);
+      m_dyy.reset(new Real_t[numElem]);
+      m_dzz.reset(new Real_t[numElem]);
    }
 
    void DeallocateStrains()
    {
-      m_dzz.clear() ;
-      m_dyy.clear() ;
-      m_dxx.clear() ;
+      m_dzz.reset();
+      m_dyy.reset();
+      m_dxx.reset();
    }
    
    //
@@ -290,9 +304,9 @@ class Domain {
    Int_t&  elemBC(Index_t idx) { return m_elemBC[idx] ; }
 
    // Principal strains - temporary
-   Real_t& dxx(Index_t idx)  { return m_dxx[idx] ; }
-   Real_t& dyy(Index_t idx)  { return m_dyy[idx] ; }
-   Real_t& dzz(Index_t idx)  { return m_dzz[idx] ; }
+   Real_t& dxx(Index_t idx)  { return m_dxx.get()[idx] ; }
+   Real_t& dyy(Index_t idx)  { return m_dyy.get()[idx] ; }
+   Real_t& dzz(Index_t idx)  { return m_dzz.get()[idx] ; }
 
    // New relative volume - temporary
    Real_t& vnew(Index_t idx)  { return m_vnew[idx] ; }
@@ -303,9 +317,9 @@ class Domain {
    Real_t& delv_zeta(Index_t idx)  { return m_delv_zeta[idx] ; }
 
    // Position gradient - temporary
-   Real_t& delx_xi(Index_t idx)    { return m_delx_xi[idx] ; }
-   Real_t& delx_eta(Index_t idx)   { return m_delx_eta[idx] ; }
-   Real_t& delx_zeta(Index_t idx)  { return m_delx_zeta[idx] ; }
+   Real_t& delx_xi(Index_t idx)    { return m_delx_xi.get()[idx] ; }
+   Real_t& delx_eta(Index_t idx)   { return m_delx_eta.get()[idx] ; }
+   Real_t& delx_zeta(Index_t idx)  { return m_delx_zeta.get()[idx] ; }
 
    // Energy
    Real_t& e(Index_t idx)          { return m_e[idx] ; }
@@ -473,17 +487,17 @@ class Domain {
 
    std::vector<Int_t>    m_elemBC ;  /* symmetry/free-surface flags for each elem face */
 
-   std::vector<Real_t> m_dxx ;  /* principal strains -- temporary */
-   std::vector<Real_t> m_dyy ;
-   std::vector<Real_t> m_dzz ;
+   ArrayPtr_t<Real_t> m_dxx ;  /* principal strains -- temporary */
+   ArrayPtr_t<Real_t> m_dyy ;
+   ArrayPtr_t<Real_t> m_dzz ;
 
-   std::vector<Real_t> m_delv_xi ;    /* velocity gradient -- temporary */
-   std::vector<Real_t> m_delv_eta ;
-   std::vector<Real_t> m_delv_zeta ;
+   ArrayPtr_t<Real_t> m_delv_xi ;    /* velocity gradient -- temporary */
+   ArrayPtr_t<Real_t> m_delv_eta ;
+   ArrayPtr_t<Real_t> m_delv_zeta ;
 
-   std::vector<Real_t> m_delx_xi ;    /* coordinate gradient -- temporary */
-   std::vector<Real_t> m_delx_eta ;
-   std::vector<Real_t> m_delx_zeta ;
+   ArrayPtr_t<Real_t> m_delx_xi ;    /* coordinate gradient -- temporary */
+   ArrayPtr_t<Real_t> m_delx_eta ;
+   ArrayPtr_t<Real_t> m_delx_zeta ;
    
    std::vector<Real_t> m_e ;   /* energy */
 
