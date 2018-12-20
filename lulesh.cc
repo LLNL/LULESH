@@ -2677,9 +2677,9 @@ void LagrangeLeapFrog(Domain& domain)
 
 int main(int argc, char *argv[])
 {
-  Domain *locDom ;
-   Int_t numRanks ;
-   Int_t myRank ;
+   Domain *locDom ;
+   int numRanks ;
+   int myRank ;
    struct cmdLineOpts opts;
 
 #if USE_MPI   

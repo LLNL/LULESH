@@ -15,7 +15,7 @@
 /////////////////////////////////////////////////////////////////////
 Domain::Domain(Int_t numRanks, Index_t colLoc,
                Index_t rowLoc, Index_t planeLoc,
-               Index_t nx, int tp, int nr, int balance, Int_t cost)
+               Index_t nx, Int_t tp, Int_t nr, Int_t balance, Int_t cost)
    :
    m_e_cut(Real_t(1.0e-7)),
    m_p_cut(Real_t(1.0e-7)),
@@ -401,7 +401,7 @@ void
 Domain::CreateRegionIndexSets(Int_t nr, Int_t balance)
 {
 #if USE_MPI   
-   Index_t myRank;
+   int myRank;
    MPI_Comm_rank(MPI_COMM_WORLD, &myRank) ;
    srand(myRank);
 #else

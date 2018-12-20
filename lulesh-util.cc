@@ -7,8 +7,28 @@
 #endif
 #include "lulesh.h"
 
+/**
+ * Wrapper around strol and stroll
+ */
+template<typename IntT>
+typename
+std::enable_if<std::is_same<int, IntT>::value ||
+               std::is_same<long, IntT>::value, IntT>::type
+ParseString(const char *token, char **endptr, int base)
+{
+   return std::strtol(token, endptr, base);
+}
+
+template<typename IntT>
+typename std::enable_if<std::is_same<long long, IntT>::value, IntT>::type
+ParseString(const char *token, char **endptr, int base)
+{
+   return std::strtoll(token, endptr, base);
+}
+
 /* Helper function for converting strings to ints, with error checking */
-int StrToInt(const char *token, int *retVal)
+template<typename IntT>
+int StrToInt(const char *token, IntT *retVal)
 {
    const char *c ;
    char *endptr ;
@@ -18,7 +38,7 @@ int StrToInt(const char *token, int *retVal)
       return 0 ;
    
    c = token ;
-   *retVal = (int)strtol(c, &endptr, decimal_base) ;
+   *retVal = ParseString<IntT>(c, &endptr, decimal_base) ;
    if((endptr != c) && ((*endptr == ' ') || (*endptr == '\0')))
       return 1 ;
    else
@@ -58,7 +78,7 @@ static void ParseError(const char *message, int myRank)
 }
 
 void ParseCommandLineOptions(int argc, char *argv[],
-                             int myRank, struct cmdLineOpts *opts)
+                             Int_t myRank, struct cmdLineOpts *opts)
 {
    if(argc > 1) {
       int i = 1;
