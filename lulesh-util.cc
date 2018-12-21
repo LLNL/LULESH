@@ -9,25 +9,6 @@
 #endif
 #include "lulesh.h"
 
-/**
- * Wrapper around strol and stroll
- */
-template<typename IntT>
-typename
-std::enable_if<std::is_same<int, IntT>::value ||
-               std::is_same<long, IntT>::value, IntT>::type
-ParseString(const char *token, char **endptr, int base)
-{
-   return std::strtol(token, endptr, base);
-}
-
-template<typename IntT>
-typename std::enable_if<std::is_same<long long, IntT>::value, IntT>::type
-ParseString(const char *token, char **endptr, int base)
-{
-   return std::strtoll(token, endptr, base);
-}
-
 /* Helper function for converting strings to ints, with error checking */
 template<typename IntT>
 int StrToInt(const char *token, IntT *retVal)
@@ -40,7 +21,7 @@ int StrToInt(const char *token, IntT *retVal)
       return 0 ;
    
    c = token ;
-   *retVal = ParseString<IntT>(c, &endptr, decimal_base) ;
+   *retVal = strtol(c, &endptr, decimal_base) ;
    if((endptr != c) && ((*endptr == ' ') || (*endptr == '\0')))
       return 1 ;
    else
