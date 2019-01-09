@@ -4,10 +4,31 @@ More information including LULESH 1.0 can be found at https://codesign.llnl.gov/
 
 If you have any questions or problems please contact:
 
-Ian Karlin <karlin1@llnl.gov>
+Ian Karlin <karlin1@llnl.gov> or
 Rob Neely <neely4@llnl.gov>
 
 Also please send any notable results to Ian Karlin <karlin1@llnl.gov> as we are still evaluating the performance of this code.
+
+A Makefile and a CMake build system are provided.
+
+*** Building with CMake ***
+
+Create a build directory and run cmake. Example:
+
+  $ mkdir build; cd build; cmake -DCMAKE_BUILD_TYPE=Release -DMPI_CXX_COMPILER=`which mpicxx` ..
+
+CMake variables:
+
+  CMAKE_BUILD_TYPE      "Debug", "Release", or "RelWithDebInfo"
+
+  CMAKE_CXX_COMPILER    Path to the C++ compiler
+  MPI_CXX_COMPILER      Path to the MPI C++ compiler
+
+  WITH_MPI=On|Off       Build with MPI (Default: On)
+  WITH_OPENMP=On|Off    Build with OpenMP support (Default: On)
+  WITH_SILO=On|Off      Build with support for SILO. (Default: Off).
+  
+  SILO_DIR              Path to SILO library (only needed when WITH_SILO is "On")
 
 *** Notable changes in LULESH 2.0 ***
 
@@ -55,5 +76,5 @@ Possible Future 2.0 minor updates (other changes possible as discovered)
 
 TODO in future versions
 * Add reader for (truly) unstructured meshes, probably serial only
-* CMake based build system
+
 
