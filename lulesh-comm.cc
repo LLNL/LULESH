@@ -56,7 +56,7 @@
 
 
 /* doRecv flag only works with regular block structure */
-void CommRecv(Domain& domain, int msgType, Index_t xferFields,
+void CommRecv(Domain& domain, Int_t msgType, Index_t xferFields,
               Index_t dx, Index_t dy, Index_t dz, bool doRecv, bool planeOnly) {
 
    if (domain.numRanks() == 1)
@@ -354,7 +354,7 @@ void CommRecv(Domain& domain, int msgType, Index_t xferFields,
 
 /******************************************/
 
-void CommSend(Domain& domain, int msgType,
+void CommSend(Domain& domain, Int_t msgType,
               Index_t xferFields, Domain_member *fieldData,
               Index_t dx, Index_t dy, Index_t dz, bool doSend, bool planeOnly)
 {
@@ -845,7 +845,7 @@ void CommSend(Domain& domain, int msgType,
 
 /******************************************/
 
-void CommSBN(Domain& domain, int xferFields, Domain_member *fieldData) {
+void CommSBN(Domain& domain, Int_t xferFields, Domain_member *fieldData) {
 
    if (domain.numRanks() == 1)
       return ;

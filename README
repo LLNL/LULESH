@@ -62,6 +62,13 @@ Performance optimizations and code cleanup uncovered during study of LULESH 1.0
 
 Added a "Figure of Merit" calculation (elements solved per microsecond) and output in support of using LULESH 2.0 for the 2017 CORAL procurement
 
+*** Notable changes in LULESH 2.1 ***
+
+Minor bug fixes.
+Code cleanup to add consitancy to variable names, loop indexing, memory allocation/deallocation, etc.
+Destructor added to main class to clean up when code exits.
+
+
 Possible Future 2.0 minor updates (other changes possible as discovered)
 
 * Different default parameters

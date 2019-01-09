@@ -104,6 +104,7 @@ void DumpToVisit(Domain& domain, int numFiles, int myRank, int numRanks)
      DBSetDir(db, subdirName);
      DumpDomainToVisit(db, domain, myRank);
      DumpMultiblockObjects(db, basename, numRanks);
+     DBClose(db);
   }
   else {
      printf("Error writing out viz file - rank %d\n", myRank);

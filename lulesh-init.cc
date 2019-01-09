@@ -15,7 +15,7 @@
 /////////////////////////////////////////////////////////////////////
 Domain::Domain(Int_t numRanks, Index_t colLoc,
                Index_t rowLoc, Index_t planeLoc,
-               Index_t nx, int tp, int nr, int balance, Int_t cost)
+               Index_t nx, Int_t tp, Int_t nr, Int_t balance, Int_t cost)
    :
    m_e_cut(Real_t(1.0e-7)),
    m_p_cut(Real_t(1.0e-7)),
@@ -35,7 +35,21 @@ Domain::Domain(Int_t numRanks, Index_t colLoc,
    m_pmin(Real_t(0.)),
    m_emin(Real_t(-1.0e+15)),
    m_dvovmax(Real_t(0.1)),
-   m_refdens(Real_t(1.0))
+   m_refdens(Real_t(1.0)),
+//
+// set pointers to (potentially) "new'd" arrays to null to 
+// simplify deallocation.
+//
+   m_regNumList(0),
+   m_nodeElemStart(0),
+   m_nodeElemCornerList(0),
+   m_regElemSize(0),
+   m_regElemlist(0)
+#if USE_MPI
+   , 
+   commDataSend(0),
+   commDataRecv(0)
+#endif
 {
 
    Index_t edgeElems = nx ;
@@ -105,10 +119,6 @@ Domain::Domain(Int_t numRanks, Index_t colLoc,
 
 #if _OPENMP
    SetupThreadSupportStructures();
-#else
-   // These arrays are not used if we're not threaded
-   m_nodeElemStart = NULL;
-   m_nodeElemCornerList = NULL;
 #endif
 
    // Setup region index sets. For now, these are constant sized
@@ -182,6 +192,25 @@ Domain::Domain(Int_t numRanks, Index_t colLoc,
    deltatime() = (Real_t(.5)*cbrt(volo(0)))/sqrt(Real_t(2.0)*einit);
 
 } // End constructor
+
+
+////////////////////////////////////////////////////////////////////////////////
+Domain::~Domain()
+{
+   delete [] m_regNumList;
+   delete [] m_nodeElemStart;
+   delete [] m_nodeElemCornerList;
+   delete [] m_regElemSize;
+   for (Index_t i=0 ; i<numReg() ; ++i) {
+     delete [] m_regElemlist[i];
+   }
+   delete [] m_regElemlist;
+   
+#if USE_MPI
+   delete [] commDataSend;
+   delete [] commDataRecv;
+#endif
+} // End destructor
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -305,11 +334,6 @@ Domain::SetupThreadSupportStructures()
 
     delete [] nodeElemCount ;
   }
-  else {
-    // These arrays are not used if we're not threaded
-    m_nodeElemStart = NULL;
-    m_nodeElemCornerList = NULL;
-  }
 }
 
 
@@ -377,7 +401,7 @@ void
 Domain::CreateRegionIndexSets(Int_t nr, Int_t balance)
 {
 #if USE_MPI   
-   Index_t myRank;
+   int myRank;
    MPI_Comm_rank(MPI_COMM_WORLD, &myRank) ;
    srand(myRank);
 #else
@@ -461,7 +485,9 @@ Domain::CreateRegionIndexSets(Int_t nr, Int_t balance)
 	    nextIndex++;
 	 }
 	 lastReg = regionNum;
-      } 
+      }
+
+      delete [] regBinEnd; 
    }
    // Convert regNumList to region index sets
    // First, count size of each region 

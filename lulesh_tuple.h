@@ -2,15 +2,7 @@
 # error "You should specify USE_MPI=0 or USE_MPI=1 on the compile line"
 #endif
 
-
-// OpenMP will be compiled in if this flag is set to 1 AND the compiler beging
-// used supports it (i.e. the _OPENMP symbol is defined)
-#define USE_OMP 1
-
 #if USE_MPI
-#include <mpi.h>
-#endif
-
 #include <mpi.h>
 
 /*
@@ -22,6 +14,7 @@
 */
 
 #define SEDOV_SYNC_POS_VEL_EARLY 1
+#endif
 
 #include <math.h>
 #include <vector>
@@ -134,6 +127,9 @@ class Domain {
    Domain(Int_t numRanks, Index_t colLoc,
           Index_t rowLoc, Index_t planeLoc,
           Index_t nx, Int_t tp, Int_t nr, Int_t balance, Int_t cost);
+   
+   // Destructor
+   ~Domain();
 
    //
    // ALLOCATION
@@ -177,6 +173,8 @@ class Domain {
       m_ss.resize(numElem);
 
       m_elemMass.resize(numElem);
+
+      m_vnew.resize(numElem) ;
    }
 
    void AllocateGradients(Int_t numElem, Int_t allElem)
@@ -280,6 +278,9 @@ class Domain {
    Real_t& dxx(Index_t idx)  { return m_dxx[idx] ; }
    Real_t& dyy(Index_t idx)  { return m_dyy[idx] ; }
    Real_t& dzz(Index_t idx)  { return m_dzz[idx] ; }
+
+   // New relative volume - temporary
+   Real_t& vnew(Index_t idx)  { return m_vnew[idx] ; }
 
    // Velocity gradient - temporary
    Real_t& delv_xi(Index_t idx)    { return m_delv_xi[idx] ; }
