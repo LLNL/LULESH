@@ -17,6 +17,7 @@
 #endif
 
 #include <math.h>
+#include <stdlib.h>
 #include <vector>
 
 //**************************************************
@@ -97,6 +98,28 @@ inline real10 FABS(real10 arg) { return fabsl(arg) ; }
 
 #define CACHE_ALIGN_REAL(n) \
    (((n) + (CACHE_COHERENCE_PAD_REAL - 1)) & ~(CACHE_COHERENCE_PAD_REAL-1))
+
+/*********************************/
+/* Data structure implementation */
+/*********************************/
+
+/* might want to add access methods so that memory can be */
+/* better managed, as in luleshFT */
+
+template <typename T>
+T *Allocate(size_t size)
+{
+   return static_cast<T *>(malloc(sizeof(T)*size)) ;
+}
+
+template <typename T>
+void Release(T **ptr)
+{
+   if (*ptr != NULL) {
+      free(*ptr) ;
+      *ptr = NULL ;
+   }
+}
 
 //////////////////////////////////////////////////////
 // Primary data structure
@@ -197,39 +220,39 @@ class Domain {
    void AllocateGradients(Int_t numElem, Int_t allElem)
    {
       // Position gradients
-      m_delx_xi.resize(numElem) ;
-      m_delx_eta.resize(numElem) ;
-      m_delx_zeta.resize(numElem) ;
+      m_delx_xi   = Allocate<Real_t>(numElem) ;
+      m_delx_eta  = Allocate<Real_t>(numElem) ;
+      m_delx_zeta = Allocate<Real_t>(numElem) ;
 
       // Velocity gradients
-      m_delv_xi.resize(allElem) ;
-      m_delv_eta.resize(allElem);
-      m_delv_zeta.resize(allElem) ;
+      m_delv_xi   = Allocate<Real_t>(allElem) ;
+      m_delv_eta  = Allocate<Real_t>(allElem);
+      m_delv_zeta = Allocate<Real_t>(allElem) ;
    }
 
    void DeallocateGradients()
    {
-      m_delx_zeta.clear() ;
-      m_delx_eta.clear() ;
-      m_delx_xi.clear() ;
+      Release(&m_delx_zeta);
+      Release(&m_delx_eta) ;
+      Release(&m_delx_xi)  ;
 
-      m_delv_zeta.clear() ;
-      m_delv_eta.clear() ;
-      m_delv_xi.clear() ;
+      Release(&m_delv_zeta);
+      Release(&m_delv_eta) ;
+      Release(&m_delv_xi)  ;
    }
 
    void AllocateStrains(Int_t numElem)
    {
-      m_dxx.resize(numElem) ;
-      m_dyy.resize(numElem) ;
-      m_dzz.resize(numElem) ;
+      m_dxx = Allocate<Real_t>(numElem) ;
+      m_dyy = Allocate<Real_t>(numElem) ;
+      m_dzz = Allocate<Real_t>(numElem) ;
    }
 
    void DeallocateStrains()
    {
-      m_dzz.clear() ;
-      m_dyy.clear() ;
-      m_dxx.clear() ;
+      Release(&m_dzz) ;
+      Release(&m_dyy) ;
+      Release(&m_dxx) ;
    }
    
    //
@@ -475,17 +498,17 @@ class Domain {
 
    std::vector<Int_t>    m_elemBC ;  /* symmetry/free-surface flags for each elem face */
 
-   std::vector<Real_t> m_dxx ;  /* principal strains -- temporary */
-   std::vector<Real_t> m_dyy ;
-   std::vector<Real_t> m_dzz ;
+   Real_t             *m_dxx ;  /* principal strains -- temporary */
+   Real_t             *m_dyy ;
+   Real_t             *m_dzz ;
 
-   std::vector<Real_t> m_delv_xi ;    /* velocity gradient -- temporary */
-   std::vector<Real_t> m_delv_eta ;
-   std::vector<Real_t> m_delv_zeta ;
+   Real_t             *m_delv_xi ;    /* velocity gradient -- temporary */
+   Real_t             *m_delv_eta ;
+   Real_t             *m_delv_zeta ;
 
-   std::vector<Real_t> m_delx_xi ;    /* coordinate gradient -- temporary */
-   std::vector<Real_t> m_delx_eta ;
-   std::vector<Real_t> m_delx_zeta ;
+   Real_t             *m_delx_xi ;    /* coordinate gradient -- temporary */
+   Real_t             *m_delx_eta ;
+   Real_t             *m_delx_zeta ;
    
    std::vector<Real_t> m_e ;   /* energy */
 
