@@ -1,0 +1,18 @@
+LULESH 2.0, parallel algorithms version, ported by David Olsen
+(dolsen@nvidia.com) from the original version of LULESH found at
+https://computing.llnl.gov/projects/co-design/lulesh
+
+The Makefile is configured for use with the NVIDIA HPC SDK nvc++
+compiler targeting NVIDIA GPUs.
+
+To build, set your environment to include the nvc++ compiler in the PATH
+variable, and then type "make".
+
+To run, type "make run".  This will invoke the command:
+
+./lulesh2.0 -s 150 -p
+
+Where
+"-p" prints intermediary results
+"-s" defines the size of the problem to use.  For benchmarking, a size
+	of 150 is typically used but can be changed to suit the need.
