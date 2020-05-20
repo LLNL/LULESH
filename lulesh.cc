@@ -145,6 +145,7 @@ Additional BSD Notice
 */
 
 #include <climits>
+#include <limits>
 #include <vector>
 #include <math.h>
 #include <stdio.h>
@@ -2453,6 +2454,11 @@ void CalcCourantConstraintForElems(Domain &domain, Index_t length,
    const Index_t threads = omp_get_max_threads();
    Index_t courant_elem_per_thread[threads];
    Real_t dtcourant_per_thread[threads];
+
+   for (Index_t i = 0 ; i < threads ; i++) {
+     dtcourant_per_thread[i] = std::numeric_limits<Real_t>::max();
+   }
+
 #else
    Index_t threads = 1;
    Index_t courant_elem_per_thread[1];
