@@ -18,7 +18,7 @@ OBJECTS2.0 = $(SOURCES2.0:.cc=.o)
 CXXFLAGS = -w -fast -Mnouniform -Mfprelaxed -stdpar=gpu -std=c++11 -DUSE_MPI=0
 LDFLAGS = $(CXXFLAGS) 
 
-.cc.o: lulesh.h
+%.o: ../src/%.cc ../src/lulesh.h
 	@echo "Building $<"
 	$(CXX) -c $(CXXFLAGS) -o $@  $<
 
