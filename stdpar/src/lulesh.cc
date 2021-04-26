@@ -1,5 +1,5 @@
 /*
-  This is a Version 2.0 MPI + OpenMP implementation of LULESH
+  This is a Version 2.0 MPI + C++ Standard Parallel implementation of LULESH
 
                  Copyright (c) 2010-2013.
       Lawrence Livermore National Security, LLC.
