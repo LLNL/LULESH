@@ -25,7 +25,7 @@
 #include <vector>
 
 //**************************************************
-// Allow flexibility for arithmetic representations 
+// Allow flexibility for arithmetic representations
 //**************************************************
 
 #define MAX(a, b) ( ((a) > (b)) ? (a) : (b))
@@ -157,6 +157,7 @@ class Domain {
       m_fz.resize(numNode);
 
       m_nodalMass.resize(numNode);  // mass
+
    }
 
    void AllocateElemPersistent(Int_t numElem) // Elem-centered
@@ -238,6 +239,26 @@ class Domain {
    //
    // ACCESSORS
    //
+
+   Real_t *fx_elem() { return m_fx_elem; }
+   Real_t *fy_elem() { return m_fy_elem; }
+   Real_t *fz_elem() { return m_fz_elem; }
+
+   Real_t *dvdx() { return m_dvdx; }
+   Real_t *dvdy() { return m_dvdy; }
+   Real_t *dvdz() { return m_dvdz; }
+
+   Real_t *x8n() { return m_x8n; }
+   Real_t *y8n() { return m_y8n; }
+   Real_t *z8n() { return m_z8n; }
+
+   Real_t *determ() { return m_determ; }
+
+  Real_t *sigxx() { return m_sigxx; }
+  Real_t *sigyy() { return m_sigyy; }
+  Real_t *sigzz() { return m_sigzz; }
+
+  Real_t *vnew() { return m_vnew; }
 
    // Node-centered
 
@@ -502,7 +523,6 @@ class Domain {
 
    std::vector<Real_t> m_v ;     /* relative volume */
    std::vector<Real_t> m_volo ;  /* reference volume */
-   std::vector<Real_t> m_vnew ;  /* new relative volume -- temporary */
    std::vector<Real_t> m_delv ;  /* m_vnew - m_v */
    std::vector<Real_t> m_vdov ;  /* volume derivative over volume */
 
@@ -577,8 +597,16 @@ class Domain {
    Index_t m_rowMin, m_rowMax;
    Index_t m_colMin, m_colMax;
    Index_t m_planeMin, m_planeMax ;
+  
+  // Temp buffers for multiple threads
 
-} ;
+  Real_t *m_fx_elem, *m_fy_elem, *m_fz_elem;
+  Real_t *m_dvdx, *m_dvdy, *m_dvdz;
+  Real_t *m_x8n, *m_y8n, *m_z8n;
+  Real_t *m_determ;
+  Real_t *m_sigxx, *m_sigyy, *m_sigzz;
+  Real_t *m_vnew;
+};
 
 typedef Real_t &(Domain::* Domain_member )(Index_t) ;
 
