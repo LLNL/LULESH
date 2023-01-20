@@ -189,7 +189,7 @@ void VerifyAndWriteFinalOutput(Real_t elapsed_time,
    printf("Run completed:  \n");
    printf("   Problem size        =  %i \n",    nx);
    printf("   MPI tasks           =  %i \n",    numRanks);
-   printf("   Iteration count     =  %i \n",    locDom.cycle());
+   printf("   Iteration count     =  %d \n",    locDom.cycle());
    printf("   Final Origin Energy = %12.6e \n", locDom.e(ElemId));
 
    Real_t   MaxAbsDiff = Real_t(0.0);

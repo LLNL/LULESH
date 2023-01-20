@@ -63,6 +63,23 @@ Domain::Domain(Int_t numRanks, Index_t colLoc,
    m_numNode = edgeNodes*edgeNodes*edgeNodes ;
 
    m_regNumList = new Index_t[numElem()] ;  // material indexset
+  //
+  
+  m_dvdx = new Real_t[numElem() * 8];
+  m_dvdy = new Real_t[numElem() * 8];
+  m_dvdz = new Real_t[numElem() * 8];
+
+  m_x8n  = new Real_t[ numElem() * 8 ];
+  m_y8n  = new Real_t[ numElem() * 8 ];
+  m_z8n  = new Real_t[ numElem() * 8 ];
+
+  m_determ = new Real_t[numElem()];
+
+  m_sigxx = new Real_t[numElem()];
+  m_sigyy = new Real_t[numElem()];
+  m_sigzz = new Real_t[numElem()];
+  m_vnew = new Real_t[numElem()];
+
 
    // Elem-centered 
    AllocateElemPersistent(numElem()) ;
@@ -247,6 +264,9 @@ Domain::SetupThreadSupportStructures()
 #else
    Index_t numthreads = 1;
 #endif
+  m_fx_elem = new Real_t[numElem() * 8];
+  m_fy_elem = new Real_t[numElem() * 8];
+  m_fz_elem = new Real_t[numElem() * 8];
 
   if (numthreads > 1) {
     // set up node-centered indexing of elements 
