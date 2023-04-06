@@ -35,7 +35,7 @@ typedef long double  real10 ;  // 10 bytes on x86
 typedef int32_t Int4_t ;
 typedef int64_t Int8_t ;
 typedef Int4_t  Index_t ; // array subscript and loop index
-typedef real4   Real_t ;  // floating point representation
+typedef real8   Real_t ;  // floating point representation
 typedef Int4_t  Int_t ;   // integer representation
 
 enum { VolumeError = -1, QStopError = -2 } ;
